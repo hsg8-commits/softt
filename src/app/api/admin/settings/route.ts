@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
     }
 
     const settings = await SettingSchema.find({});
-
     return NextResponse.json({ settings }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -29,7 +28,12 @@ export async function PUT(request: NextRequest) {
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
+
+    // ✅ تأكيد أن adminId دائمًا string وليس undefined
+    const adminId = authResult.adminId ?? "";
+    if (!adminId) {
+      return NextResponse.json({ error: "Unauthorized admin" }, { status: 401 });
+    }
 
     const reqBody = await request.json();
     const { key, value, description } = reqBody;
@@ -47,9 +51,13 @@ export async function PUT(request: NextRequest) {
       { new: true, upsert: true, runValidators: true }
     );
 
+    // ✅ بدون أخطاء لأن adminId مؤكد أنه string
     await logAdminAction(adminId, "UPDATE_SETTING", `Setting Key: ${key}`, { value, description });
 
-    return NextResponse.json({ message: "Setting updated successfully", setting: updatedSetting }, { status: 200 });
+    return NextResponse.json(
+      { message: "Setting updated successfully", setting: updatedSetting },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
