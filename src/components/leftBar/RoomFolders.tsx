@@ -44,7 +44,6 @@ const RoomFolders = ({
 
     chatFolderRef.current!.addEventListener("wheel", handleScroll);
     return () =>
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       chatFolderRef.current?.removeEventListener("wheel", handleScroll);
   }, []);
 

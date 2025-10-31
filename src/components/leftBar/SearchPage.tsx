@@ -49,7 +49,6 @@ const SearchPage = ({ closeSearch }: Props) => {
         if (status === 200) {
           setSearchResult(data);
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error: unknown) {
         setSearchResult([]);
       } finally {

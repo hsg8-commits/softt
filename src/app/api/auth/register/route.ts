@@ -39,7 +39,6 @@ export const POST = async (req: Request) => {
       secure: true,
     });
     return Response.json(userData, { status: 201 });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     const existedUsernameOrPhone = Object.keys(
       error.errorResponse?.keyPattern

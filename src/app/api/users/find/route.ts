@@ -40,7 +40,6 @@ export const POST = async (req: Request) => {
       return Response.json(null, { status: 404 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const userRoomsData: any = await RoomSchema.find({
       participants: { $in: userID },
     })

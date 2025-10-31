@@ -53,7 +53,6 @@ const EditUsername = ({ getBack }: { getBack: () => void }) => {
         });
         setIsUsernameValid(data?.isValid);
         setErrorMsg(data?.message);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         setIsUsernameValid(false);
         setErrorMsg(error?.response?.data?.message);

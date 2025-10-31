@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import AdminSchema from "@/schemas/adminSchema";
 import { connectDB } from "@/db";
 import { authAdmin } from "@/utils/authAdmin";
@@ -8,7 +8,7 @@ import bcrypt from "bcrypt";
 connectDB();
 
 // GET: عرض جميع المشرفين
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
 }
 
 // POST: إضافة مشرف جديد
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {
@@ -62,7 +62,7 @@ export async function POST(request: Request) {
 }
 
 // PUT: تعديل بيانات مشرف
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {
@@ -103,7 +103,7 @@ export async function PUT(request: Request) {
 }
 
 // DELETE: حذف مشرف
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {

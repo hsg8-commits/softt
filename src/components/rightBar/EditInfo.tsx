@@ -23,7 +23,6 @@ import RoomCard from "./RoomCard";
 import EmojiPicker from "../modules/EmojiPicker";
 
 interface EditInfoProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedRoomData: any;
   roomData: User & Room;
   submitChanges: boolean;

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import AdminSchema from "@/schemas/adminSchema";
 import { connectDB } from "@/db";
 import bcrypt from "bcrypt";
@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 
 connectDB();
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const reqBody = await request.json();
     const { email, password } = reqBody;

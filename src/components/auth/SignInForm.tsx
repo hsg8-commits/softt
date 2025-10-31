@@ -30,7 +30,6 @@ const SignInForm = () => {
         });
         toaster("success", "تم تسجيل الدخول بنجاح");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toaster("error", error.response.data.message);
     }

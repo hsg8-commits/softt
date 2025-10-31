@@ -55,7 +55,6 @@ const ChatCard = ({
   } = useUserStore((state) => state) || {};
   const { rooms } = useSockets((state) => state);
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isUser = (data: any): data is User => {
     return data && typeof data === "object" && "_id" in data;
   };
@@ -242,7 +241,6 @@ const ChatCard = ({
             </span>
           </div>
           <div className="flex gap-1 items-center absolute right-3">
-            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(lastMsgData?.sender as any) === myID ||
             lastMsgData?.sender._id === myID ? (
               <>

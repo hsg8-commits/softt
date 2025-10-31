@@ -22,7 +22,6 @@ const RightBar = () => {
     RoomDetailsData,
     rightBarRoute,
   } = useGlobalStore((state) => state);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectedRoomData: any = RoomDetailsData ?? selectedRoom;
   const { participants, type, _id: roomID } = selectedRoomData || {};
   const myData = useUserStore((state) => state);

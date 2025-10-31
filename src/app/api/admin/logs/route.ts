@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import LogSchema from "@/schemas/logSchema";
 import { connectDB } from "@/db";
 import { authAdmin } from "@/utils/authAdmin";
@@ -6,7 +6,7 @@ import { authAdmin } from "@/utils/authAdmin";
 connectDB();
 
 // GET: عرض سجلات المشرفين
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {

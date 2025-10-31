@@ -30,7 +30,6 @@ const SignUpForm = () => {
         });
         toaster("success", "تم إنشاء الحساب بنجاح");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       toaster("error", error.response.data.message);
     }

@@ -1,13 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSchema from "@/schemas/userSchema";
 import MessageSchema from "@/schemas/messageSchema";
+import ReportSchema from "@/schemas/reportSchema";
 import { connectDB } from "@/db";
 import { authAdmin } from "@/utils/authAdmin";
 
 connectDB();
 
 // GET: جلب الإحصائيات العامة
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request);
     if (!authResult.success) {

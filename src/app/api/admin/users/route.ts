@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import UserSchema from "@/schemas/userSchema";
 import { connectDB } from "@/db";
 import { authAdmin } from "@/utils/authAdmin";
@@ -7,7 +7,7 @@ import { logAdminAction } from "@/utils/logAdminAction";
 connectDB();
 
 // GET: عرض جميع المستخدمين
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request);
     if (!authResult.success) {
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 }
 
 // PUT: تعديل بيانات المستخدم
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin", "moderator"]);
     if (!authResult.success) {
@@ -74,7 +74,7 @@ export async function PUT(request: Request) {
 }
 
 // DELETE: حذف/حظر المستخدم (سأفترض أن الحذف هو حظر مؤقت بتغيير الحالة)
-export async function DELETE(request: Request) {
+export async function DELETE(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin", "moderator"]);
     if (!authResult.success) {

@@ -61,7 +61,6 @@ const LeftBarMenu = ({ closeMenu, isOpen, onRouteChanged }: Props) => {
         break;
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [route, isOpen]);
 
   return (

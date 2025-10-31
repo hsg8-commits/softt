@@ -18,7 +18,6 @@ import ProfileImageViewer from "@/components/modules/ProfileImageViewer";
 import ProfileGradients from "../modules/ProfileGradients";
 
 interface RoomDetailsProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectedRoomData: any;
   myData: User & UserStoreUpdater;
   roomData: User & Room;
@@ -76,7 +75,6 @@ const RoomDetails = ({
         roomSocket.on("getRoomMembers", (participants) => {
           setGroupMembers(participants);
         });
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         toaster("error", error);
       } finally {

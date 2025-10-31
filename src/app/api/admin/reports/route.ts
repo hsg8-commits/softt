@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import ReportSchema from "@/schemas/reportSchema";
 import MessageSchema from "@/schemas/messageSchema";
 import UserSchema from "@/schemas/userSchema";
@@ -9,7 +9,7 @@ import { logAdminAction } from "@/utils/logAdminAction";
 connectDB();
 
 // GET: عرض جميع البلاغات
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request);
     if (!authResult.success) {
@@ -41,7 +41,7 @@ export async function GET(request: Request) {
 }
 
 // PUT: اتخاذ إجراء على بلاغ (تجاهل، حذف المحتوى، حظر المستخدم)
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin", "moderator"]);
     if (!authResult.success) {

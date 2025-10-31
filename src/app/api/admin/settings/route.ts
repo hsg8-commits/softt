@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import SettingSchema from "@/schemas/settingSchema";
 import { connectDB } from "@/db";
 import { authAdmin } from "@/utils/authAdmin";
@@ -7,7 +7,7 @@ import { logAdminAction } from "@/utils/logAdminAction";
 connectDB();
 
 // GET: جلب جميع الإعدادات
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request);
     if (!authResult.success) {
@@ -23,7 +23,7 @@ export async function GET(request: Request) {
 }
 
 // PUT: تعديل إعداد موجود أو إضافته إذا لم يكن موجودًا
-export async function PUT(request: Request) {
+export async function PUT(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin"]);
     if (!authResult.success) {

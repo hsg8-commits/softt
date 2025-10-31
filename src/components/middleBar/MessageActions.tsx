@@ -168,7 +168,6 @@ const MessageActions = ({ isFromMe, msgData }: MessageActionsProps) => {
             m._id === msg._id ? { ...m, voiceData: preparedVoiceData } : m
           );
           pendingMessagesService.savePendingMessages(msg.roomID, updated);
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         } catch (e: unknown) {
           setter(
             (prev): Partial<GlobalStoreProps> => ({
@@ -357,7 +356,6 @@ const MessageActions = ({ isFromMe, msgData }: MessageActionsProps) => {
       },
     }));
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [msgData, isChecked, roomSocket]);
 
   const openProfile = useCallback(
