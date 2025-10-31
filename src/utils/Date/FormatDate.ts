@@ -6,43 +6,35 @@ const formatDate = (inputDate: string) => {
 
   const now = new Date();
 
+  const daysOfWeek = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+  const months = [
+    "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
+    "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"
+  ];
+
+  // إذا كان اليوم نفسه
   if (dateObj.toDateString() === now.toDateString()) {
-    const hours = String(dateObj.getHours()).padStart(2, "0");
+    const hours = dateObj.getHours();
     const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-    return `${hours}:${minutes}`;
+    const ampm = hours >= 12 ? "م" : "ص";
+    const hour12 = hours % 12 || 12;
+    return `${hour12}:${minutes} ${ampm}`;
   }
 
+  // إذا خلال آخر 7 أيام
   const sevenDaysAgo = new Date(now);
   sevenDaysAgo.setDate(now.getDate() - 7);
   if (dateObj >= sevenDaysAgo && dateObj < now) {
-    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     return daysOfWeek[dateObj.getDay()];
   }
 
+  // إذا نفس السنة
   if (dateObj.getFullYear() === now.getFullYear()) {
-    const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
-    ];
-    const day = dateObj.getDate();
-    const month = months[dateObj.getMonth()];
-    return `${day} ${month}`;
+    return `${dateObj.getDate()} ${months[dateObj.getMonth()]}`;
   }
 
-  const day = String(dateObj.getDate()).padStart(2, "0");
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const year = String(dateObj.getFullYear()).slice(-2);
-  return `${day}.${month}.${year}`;
+  // إذا سنة مختلفة
+  return `${dateObj.getDate()} ${months[dateObj.getMonth()]} ${dateObj.getFullYear()}`;
 };
 
 export default formatDate;
