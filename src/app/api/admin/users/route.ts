@@ -40,8 +40,12 @@ export async function PUT(request: NextRequest) {
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
-    const adminRole = authResult.role;
+
+    // ✅ التأكد أن adminId دائمًا string
+    const adminId = authResult.adminId ?? "";
+    if (!adminId) {
+      return NextResponse.json({ error: "Unauthorized admin" }, { status: 401 });
+    }
 
     const reqBody = await request.json();
     const { userId, updateData } = reqBody;
@@ -64,7 +68,6 @@ export async function PUT(request: NextRequest) {
     }
 
     // تسجيل الإجراء في السجل (Log)
-    // نحتاج لإنشاء دالة logAdminAction
     await logAdminAction(adminId, "UPDATE_USER", `User ID: ${userId}`, { updateData });
 
     return NextResponse.json({ message: "User updated successfully", user: updatedUser }, { status: 200 });
@@ -73,15 +76,19 @@ export async function PUT(request: NextRequest) {
   }
 }
 
-// DELETE: حذف/حظر المستخدم (سأفترض أن الحذف هو حظر مؤقت بتغيير الحالة)
+// DELETE: حذف/حظر المستخدم
 export async function DELETE(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin", "moderator"]);
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
-    const adminRole = authResult.role;
+
+    // ✅ التأكد أن adminId دائمًا string
+    const adminId = authResult.adminId ?? "";
+    if (!adminId) {
+      return NextResponse.json({ error: "Unauthorized admin" }, { status: 401 });
+    }
 
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
@@ -96,13 +103,11 @@ export async function DELETE(request: NextRequest) {
     let message = "";
 
     if (action === "block") {
-      update = { status: "blocked" }; // افتراض أن لدينا حالة "blocked"
+      update = { status: "blocked" };
       logAction = "BLOCK_USER";
       message = "User blocked successfully";
     } else if (action === "delete") {
-      // في التطبيقات الحقيقية يُفضل عدم الحذف الفعلي، بل وضع علامة للحذف
-      // لكن لغرض هذا المثال، سنقوم بتغيير الحالة إلى محظور
-      update = { status: "deleted" }; // افتراض أن لدينا حالة "deleted"
+      update = { status: "deleted" };
       logAction = "DELETE_USER_MARK";
       message = "User marked as deleted successfully";
     } else {
@@ -119,7 +124,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // تسجيل الإجراء في السجل (Log)
+    // تسجيل الإجراء في السجل
     await logAdminAction(adminId, logAction, `User ID: ${userId}`, { action });
 
     return NextResponse.json({ message, user: updatedUser }, { status: 200 });
