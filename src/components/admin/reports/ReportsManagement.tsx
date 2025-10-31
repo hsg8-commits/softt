@@ -15,7 +15,8 @@ interface Report {
   createdAt: string;
 }
 
-export default function ReportsManagement() {\n  const [reports, setReports] = useState<Report[]>([]);
+export default function ReportsManagement() {
+  const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalReports, setTotalReports] = useState(0);
