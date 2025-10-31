@@ -16,7 +16,6 @@ export async function GET(request: NextRequest) {
     }
 
     const admins = await AdminSchema.find({}).select("-password");
-
     return NextResponse.json({ admins }, { status: 200 });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
@@ -30,8 +29,8 @@ export async function POST(request: NextRequest) {
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
 
+    const adminId = authResult.adminId;
     const reqBody = await request.json();
     const { username, email, password, role } = reqBody;
 
@@ -53,9 +52,17 @@ export async function POST(request: NextRequest) {
 
     await newAdmin.save();
 
-    await logAdminAction(adminId, "ADD_ADMIN", `Admin Email: ${email}`, { role });
+    if (adminId) {
+      await logAdminAction(adminId, "ADD_ADMIN", `Admin Email: ${email}`, { role });
+    }
 
-    return NextResponse.json({ message: "Admin added successfully", admin: newAdmin.toObject({ getters: true, virtuals: false }) }, { status: 201 });
+    return NextResponse.json(
+      {
+        message: "Admin added successfully",
+        admin: newAdmin.toObject({ getters: true, virtuals: false }),
+      },
+      { status: 201 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -68,8 +75,8 @@ export async function PUT(request: NextRequest) {
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
 
+    const adminId = authResult.adminId;
     const reqBody = await request.json();
     const { adminToUpdateId, updateData } = reqBody;
 
@@ -94,9 +101,14 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    await logAdminAction(adminId, "UPDATE_ADMIN", `Admin ID: ${adminToUpdateId}`, { updateData });
+    if (adminId) {
+      await logAdminAction(adminId, "UPDATE_ADMIN", `Admin ID: ${adminToUpdateId}`, { updateData });
+    }
 
-    return NextResponse.json({ message: "Admin updated successfully", admin: updatedAdmin }, { status: 200 });
+    return NextResponse.json(
+      { message: "Admin updated successfully", admin: updatedAdmin },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
@@ -109,8 +121,8 @@ export async function DELETE(request: NextRequest) {
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
-    const adminId = authResult.adminId;
 
+    const adminId = authResult.adminId;
     const { searchParams } = new URL(request.url);
     const adminToDeleteId = searchParams.get("adminId");
 
@@ -124,9 +136,14 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Admin not found" }, { status: 404 });
     }
 
-    await logAdminAction(adminId, "DELETE_ADMIN", `Admin ID: ${adminToDeleteId}`, { email: deletedAdmin.email });
+    if (adminId) {
+      await logAdminAction(adminId, "DELETE_ADMIN", `Admin ID: ${adminToDeleteId}`, { email: deletedAdmin.email });
+    }
 
-    return NextResponse.json({ message: "Admin deleted successfully" }, { status: 200 });
+    return NextResponse.json(
+      { message: "Admin deleted successfully" },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
