@@ -41,4 +41,5 @@ mongoose.connection.on("disconnected", () => {
   }
 });
 
-export default connectToDB;
+export const connectDB = connectToDB;
+export default connectDB;
