@@ -8,7 +8,7 @@ import { logAdminAction } from "@/utils/logAdminAction";
 
 connectDB();
 
-// GET: عرض جميع البلاغات
+// ✅ GET: عرض جميع البلاغات
 export async function GET(request: NextRequest) {
   try {
     const authResult = await authAdmin(request);
@@ -34,19 +34,23 @@ export async function GET(request: NextRequest) {
 
     const totalReports = await ReportSchema.countDocuments(query);
 
-    return NextResponse.json({ reports, totalReports, page, limit }, { status: 200 });
+    return NextResponse.json(
+      { reports, totalReports, page, limit },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
 
-// PUT: اتخاذ إجراء على بلاغ (تجاهل، حذف المحتوى، حظر المستخدم)
+// ✅ PUT: اتخاذ إجراء على بلاغ (تجاهل، حذف المحتوى، حظر المستخدم)
 export async function PUT(request: NextRequest) {
   try {
     const authResult = await authAdmin(request, ["superadmin", "moderator"]);
     if (!authResult.success) {
       return NextResponse.json({ error: authResult.error }, { status: 401 });
     }
+
     const adminId = authResult.adminId;
     const adminRole = authResult.role;
 
@@ -80,17 +84,25 @@ export async function PUT(request: NextRequest) {
           actionTaken = "Message Deleted";
           logAction = "MESSAGE_DELETED_VIA_REPORT";
         } else {
-          return NextResponse.json({ error: "Report does not contain a message ID" }, { status: 400 });
+          return NextResponse.json(
+            { error: "Report does not contain a message ID" },
+            { status: 400 }
+          );
         }
         break;
 
       case "block_user":
         if (report.reportedUserId) {
-          await UserSchema.findByIdAndUpdate(report.reportedUserId, { status: "blocked" });
+          await UserSchema.findByIdAndUpdate(report.reportedUserId, {
+            status: "blocked",
+          });
           actionTaken = "User Blocked";
           logAction = "USER_BLOCKED_VIA_REPORT";
         } else {
-          return NextResponse.json({ error: "Report does not contain a user ID" }, { status: 400 });
+          return NextResponse.json(
+            { error: "Report does not contain a user ID" },
+            { status: 400 }
+          );
         }
         break;
 
@@ -104,9 +116,24 @@ export async function PUT(request: NextRequest) {
       { new: true }
     );
 
-    await logAdminAction(adminId, logAction, `Report ID: ${reportId}`, { action, reportedMessageId: report.reportedMessageId, reportedUserId: report.reportedUserId });
+    // 🔒 تأكد من وجود adminId قبل تسجيل الإجراء
+    if (adminId) {
+      await logAdminAction(
+        adminId,
+        logAction,
+        `Report ID: ${reportId}`,
+        {
+          action,
+          reportedMessageId: report.reportedMessageId,
+          reportedUserId: report.reportedUserId,
+        }
+      );
+    }
 
-    return NextResponse.json({ message: `Report resolved: ${actionTaken}`, report: updatedReport }, { status: 200 });
+    return NextResponse.json(
+      { message: `Report resolved: ${actionTaken}`, report: updatedReport },
+      { status: 200 }
+    );
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
