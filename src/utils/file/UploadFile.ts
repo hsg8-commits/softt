@@ -78,14 +78,14 @@ const uploadFile = async (
             const data = JSON.parse(xhr.responseText);
             // Cloudinary ترجع رابط الملف في خاصية secure_url
             resolve(data.secure_url);
-          } catch (e) {
+          } catch {
             reject(new Error("Failed to parse Cloudinary response."));
           }
         } else {
           try {
             const errorData = JSON.parse(xhr.responseText);
             reject(new Error(errorData.error.message || `Cloudinary upload failed with status: ${xhr.status}`));
-          } catch (e) {
+          } catch {
             reject(new Error(`Cloudinary upload failed with status: ${xhr.status}`));
           }
         }
