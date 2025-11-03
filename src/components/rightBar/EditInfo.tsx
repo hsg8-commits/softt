@@ -21,9 +21,10 @@ import { TbCameraPlus } from "react-icons/tb";
 import Loading from "../modules/ui/Loading";
 import RoomCard from "./RoomCard";
 import EmojiPicker from "../modules/EmojiPicker";
+// 🔥 تم إزالة: import ProfileGradients from "../modules/ProfileGradients";
 
 interface EditInfoProps {
-  selectedRoomData: any;
+  selectedRoomData: Room; // 🔥 تغيير من any
   roomData: User & Room;
   submitChanges: boolean;
   setSubmitChanges: Dispatch<SetStateAction<boolean>>;
@@ -46,6 +47,8 @@ const EditInfo = ({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [updatedRoomName, setUpdatedRoomName] = useState(name);
   const [isEmojiOpen, setIsEmojiOpen] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
+  
   const inputRef = useRef<HTMLInputElement | null>(null);
   const { setter, onlineUsers, selectedRoom } = useGlobalStore(
     (state) => state
@@ -56,11 +59,18 @@ const EditInfo = ({
     const imgFile = e.target.files?.[0];
     if (imgFile) {
       const fileReader = new FileReader();
-      fileReader.onload = (ev) => setRoomImage(ev.target?.result as string);
+      fileReader.onload = (ev) => {
+        setRoomImage(ev.target?.result as string);
+        setImageLoadError(false);
+      };
       fileReader.readAsDataURL(imgFile);
       setImageFile(imgFile);
     }
   }, []);
+
+  useEffect(() => {
+    setImageLoadError(false);
+  }, [roomImage]);
 
   const handleEmojiClick = useCallback((e: { emoji: string }) => {
     setUpdatedRoomName((prev) => prev + e.emoji);
@@ -79,7 +89,7 @@ const EditInfo = ({
         avatar: uploadedImageUrl,
       });
       socket?.off("updateRoomData");
-      socket?.once("updateRoomData", ({ _id, name, avatar }) => {
+      socket?.once("updateRoomData", ({ _id, name, avatar }: { _id: string; name: string; avatar: string }) => {
         useUserStore.getState().setter((prev) => ({
           ...prev,
           rooms: prev.rooms.map((room) =>
@@ -94,7 +104,7 @@ const EditInfo = ({
       });
     } catch (error) {
       console.error(error);
-      toaster("error", "Failed to upload image, try again");
+      toaster("error", "فشل رفع الصورة، حاول مرة أخرى");
     }
   }, [
     imageFile,
@@ -129,7 +139,6 @@ const EditInfo = ({
     });
   };
 
-  // Get group members
   useEffect(() => {
     if (!socket || !roomID) return;
     setIsLoading(true);
@@ -148,26 +157,31 @@ const EditInfo = ({
   return (
     <div className="relative h-full">
       <div className="flex items-center gap-3 w-full mt-2 p-4">
-        {roomImage ? (
+        {roomImage && !imageLoadError ? (
           <Image
             src={roomImage}
             onClick={() => setRoomImage(null)}
             className="cursor-pointer object-cover shrink-0 size-13 rounded-full"
             width={60}
             height={60}
-            alt="avatar"
+            alt=""
+            onError={() => setImageLoadError(true)}
+            onLoad={() => setImageLoadError(false)}
+            unoptimized={roomImage.includes('cloudinary')}
           />
-        ) : (
+        ) : !roomImage || imageLoadError ? (
           <label htmlFor="imgUpload" className="cursor-pointer">
             <input
               type="file"
               className="hidden"
               id="imgUpload"
+              accept="image/*"
               onChange={getImgUrl}
             />
             <TbCameraPlus className="flex-center bg-darkBlue rounded-full size-13 p-3.5" />
           </label>
-        )}
+        ) : null}
+
         <div
           className={`flex items-center gap-3 border-b-1 ${
             !updatedRoomName.trim() ? "border-red-500" : "border-darkBlue"
@@ -180,7 +194,7 @@ const EditInfo = ({
             value={updatedRoomName}
             onChange={(e) => setUpdatedRoomName(e.target.value)}
             className="w-full p-2 bg-inherit outline-hidden"
-            placeholder={`Enter ${type} name`}
+            placeholder={type === "group" ? "أدخل اسم المجموعة" : "أدخل اسم القناة"}
           />
           {isEmojiOpen ? (
             <FaRegKeyboard
@@ -201,12 +215,12 @@ const EditInfo = ({
       {selectedRoom?.type === "group" && (
         <div className="flex flex-col">
           <div className="h-2 bg-black"></div>
-          <span className="text-sm p-2 text-darkBlue">Members</span>
+          <span className="text-sm p-2 text-darkBlue">الأعضاء</span>
           <div className="flex flex-col">
             {isLoading ? (
               <Loading classNames="mx-auto" />
             ) : (
-              members.length &&
+              members.length > 0 &&
               members.map((member) => (
                 <RoomCard
                   key={member._id}

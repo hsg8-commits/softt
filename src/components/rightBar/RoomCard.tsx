@@ -35,6 +35,7 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
   const { rooms, _id: myID } = useUserStore((state) => state);
   const roomSocket = useSockets((state) => state.rooms);
   const [showUserOptions, setShowUserOptions] = useState(false);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const showProfile = () => {
     setter({
@@ -77,12 +78,13 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
   };
 
   const isAdmin = selectedRoom?.admins.includes(_id);
-  const isOwner = selectedRoom?.creator.includes(_id);
+  const isOwner = selectedRoom?.creator === _id;
+  const amIOwner = selectedRoom?.creator === myID;
   const roomID = selectedRoom?._id;
 
   const dropDownItems = [
     !isAdmin && {
-      title: "Promote to admin",
+      title: "ترقية إلى مشرف",
       icon: <RiShieldStarLine className="size-5 text-gray-400" />,
 
       onClick: () => {
@@ -110,7 +112,7 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
       },
     },
     isAdmin && {
-      title: "Dismiss admin",
+      title: "إزالة من المشرفين",
       icon: <GoNoEntry className="size-5 text-red-400" />,
       itemClassNames: "text-red-400",
       onClick: () => {
@@ -138,8 +140,8 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
       },
     },
     {
-      title: `Remove from ${
-        rightBarRoute === "/edit-info" ? "group" : "channel"
+      title: `إزالة من ${
+        rightBarRoute === "/edit-info" ? "المجموعة" : "القناة"
       }`,
       icon: <LuUserMinus className="size-5 text-red-400" />,
       itemClassNames: "text-red-400",
@@ -187,17 +189,20 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
         onClick={shouldOpenChat ? openChat : showProfile}
         className="flex items-center gap-2 px-2 cursor-pointer border-b border-black/15 hover:bg-white/5 transition-all duration-200 grow"
       >
-        {avatar ? (
+        {avatar && typeof avatar === 'string' && avatar.trim() && !imageLoadError ? (
           <Image
             src={avatar}
             className="cursor-pointer object-cover size-11 rounded-full"
             width={44}
             height={44}
-            alt="avatar"
+            alt=""
+            unoptimized={avatar.includes('cloudinary')}
+            onError={() => setImageLoadError(true)}
+            onLoad={() => setImageLoadError(false)}
           />
         ) : (
           <ProfileGradients classNames="size-11 text-center text-lg " id={_id}>
-            {name![0]}
+            {name && name[0] ? name[0].toUpperCase() : "؟"}
           </ProfileGradients>
         )}
 
@@ -208,19 +213,19 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
                 <span>{name + " " + lastName}</span>
                 {isAdmin && !isOwner && (
                   <span className="text-xs text-darkBlue mb-0.5 font-vazirRegular">
-                    Admin
+                    مشرف
                   </span>
                 )}
               </span>
             </p>
-            {isOwner && <p className="text-xs text-darkBlue">Owner</p>}
+            {isOwner && <p className="text-xs text-darkBlue">المالك</p>}
           </div>
 
           <p className="text-sm text-darkGray">
             {isOnline ? (
-              <span className="text-lightBlue">Online</span>
+              <span className="text-lightBlue">متصل</span>
             ) : (
-              "last seen recently"
+              "آخر ظهور مؤخراً"
             )}
           </p>
         </div>
@@ -228,6 +233,7 @@ const RoomCard = (roomData: Partial<User | Room> & Props) => {
       {(rightBarRoute === "/add-subscribers" ||
         rightBarRoute === "/edit-info" ||
         rightBarRoute === "/administrators") &&
+        amIOwner &&
         !isOwner &&
         _id !== myID && (
           <div>

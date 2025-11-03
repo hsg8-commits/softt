@@ -7,6 +7,7 @@ import { MdDone, MdEdit } from "react-icons/md";
 import useUserStore from "@/stores/userStore";
 import Loading from "../modules/ui/Loading";
 import Room from "@/models/room";
+import User from "@/models/user";
 import AddMembers from "./AddMembers";
 import AddSubscribers from "./AddSubscribers";
 const RoomDetails = lazy(() => import("@/components/rightBar/RoomDetails"));
@@ -22,19 +23,25 @@ const RightBar = () => {
     RoomDetailsData,
     rightBarRoute,
   } = useGlobalStore((state) => state);
-  const selectedRoomData: any = RoomDetailsData ?? selectedRoom;
-  const { participants, type, _id: roomID } = selectedRoomData || {};
+  const selectedRoomData: Room | User | null = RoomDetailsData ?? selectedRoom;
+  const { participants, type, _id: roomID } = (selectedRoomData as Room) || {};
   const myData = useUserStore((state) => state);
 
   const roomData = useMemo(() => {
     if (type === "private") {
       return (
-        participants?.find((data: Room) => data?._id !== myData._id) ||
-        participants?.find((data: Room) => data?._id === myData._id) ||
+        participants?.find((data: string | User) => {
+          if (typeof data === "string") return data !== myData._id;
+          return data?._id !== myData._id;
+        }) ||
+        participants?.find((data: string | User) => {
+          if (typeof data === "string") return data === myData._id;
+          return data?._id === myData._id;
+        }) ||
         selectedRoomData
       );
     }
-    return selectedRoomData || "";
+    return selectedRoomData || null;
   }, [myData._id, participants, selectedRoomData, type]);
 
   const activeRoute = useMemo(() => {
@@ -43,8 +50,8 @@ const RightBar = () => {
         return (
           <EditInfo
             key={`${roomID}-edit-info`}
-            selectedRoomData={selectedRoomData}
-            roomData={roomData}
+            selectedRoomData={selectedRoomData as Room}
+            roomData={roomData as User & Room}
             submitChanges={submitChanges}
             setSubmitChanges={setSubmitChanges}
             setCanSubmit={setCanSubmit}
@@ -58,7 +65,7 @@ const RightBar = () => {
             setCanSubmit={setCanSubmit}
             submitChanges={submitChanges}
             setSubmitChanges={setSubmitChanges}
-            roomData={roomData}
+            roomData={selectedRoomData as Room}
           />
         );
       case "/add-subscribers":
@@ -68,7 +75,7 @@ const RightBar = () => {
             setCanSubmit={setCanSubmit}
             submitChanges={submitChanges}
             setSubmitChanges={setSubmitChanges}
-            roomData={roomData}
+            roomData={selectedRoomData as Room}
             myData={myData}
           />
         );
@@ -76,9 +83,9 @@ const RightBar = () => {
         return (
           <RoomDetails
             key={`${roomID}-room-details`}
-            selectedRoomData={selectedRoomData}
+            selectedRoomData={selectedRoomData as Room}
             myData={myData}
-            roomData={roomData}
+            roomData={roomData as User & Room}
           />
         );
     }
@@ -126,15 +133,15 @@ const RightBar = () => {
     const getHeaderTitle = () => {
       switch (rightBarRoute) {
         case "/add-members":
-          return "Add members";
+          return "إضافة أعضاء";
         case "/add-subscribers":
-          return "Subscribers";
+          return "المشتركين";
         case "/add-channel-members":
-          return "Add Subscribers";
+          return "إضافة مشتركين";
         case "/administrators":
-          return "Administrators";
+          return "المسؤولون";
         default:
-          return "Edit";
+          return "تعديل";
       }
     };
 
@@ -167,7 +174,7 @@ const RightBar = () => {
       );
     } else if (
       rightBarRoute === "/" &&
-      roomData?.admins?.includes(myData._id)
+      (roomData as Room)?.admins?.includes(myData._id)
     ) {
       return (
         <MdEdit
