@@ -83,8 +83,8 @@ export async function POST(request: NextRequest) {
       duration: result.duration,
     });
 
-  } catch (error) {
-    console.error('Upload error:', error);
+  } catch (uploadError) {
+    console.error('Upload error:', uploadError);
     return NextResponse.json(
       { success: false, error: 'حدث خطأ أثناء رفع الملف' },
       { status: 500 }
@@ -103,7 +103,8 @@ export async function GET() {
       cloudinary_status: result.status,
       message: 'خدمة رفع الملفات تعمل بشكل صحيح'
     });
-  } catch (error) {
+  } catch (getError) {
+    console.error('Cloudinary GET error:', getError);
     return NextResponse.json(
       { success: false, error: 'خطأ في الاتصال بخدمة التخزين السحابي' },
       { status: 500 }
