@@ -215,7 +215,7 @@ const Message = memo((msgData: MessageModel & msgDataProps) => {
           !isPv &&
           !isChannel &&
           isLastMessageFromUserMemo &&
-          (sender.avatar ? (
+          (sender.avatar && typeof sender.avatar === 'string' && sender.avatar.trim() ? (
             <div
               className="chat-image avatar cursor-pointer z-5"
               onClick={openProfile}
@@ -225,8 +225,9 @@ const Message = memo((msgData: MessageModel & msgDataProps) => {
                   src={sender.avatar}
                   width={32}
                   height={32}
-                  alt="avatar"
-                  className="size-8 shrink-0 rounded-full"
+                  alt=""
+                  className="size-8 shrink-0 rounded-full object-cover"
+                  unoptimized={sender.avatar.includes('cloudinary')}
                 />
               </div>
             </div>
@@ -236,7 +237,7 @@ const Message = memo((msgData: MessageModel & msgDataProps) => {
               id={sender?._id}
               onClick={openProfile}
             >
-              {sender.name[0]}
+              {sender.name && sender.name[0] ? sender.name[0].toUpperCase() : "؟"}
             </ProfileGradients>
           ))}
 
@@ -451,20 +452,27 @@ const Message = memo((msgData: MessageModel & msgDataProps) => {
                               return;
                             }
                             
-                            // للملفات PDF - فتح في نافذة جديدة
-                            const ext = fileData.name?.split('.').pop()?.toLowerCase();
-                            if (ext === 'pdf') {
-                              window.open(fileData.url, '_blank');
-                            } else {
-                              // للملفات الأخرى - تحميل مباشر
-                              const link = document.createElement('a');
-                              link.href = fileData.url;
-                              link.download = fileData.name || 'file';
-                              link.target = '_blank';
-                              document.body.appendChild(link);
-                              link.click();
-                              document.body.removeChild(link);
-                            }
+                            // تحميل الملف مباشرة بدون فتح رابط Cloudinary
+                            const downloadFile = async () => {
+                              try {
+                                const response = await fetch(fileData.url);
+                                const blob = await response.blob();
+                                const url = window.URL.createObjectURL(blob);
+                                const link = document.createElement('a');
+                                link.href = url;
+                                link.download = fileData.name || 'file';
+                                document.body.appendChild(link);
+                                link.click();
+                                document.body.removeChild(link);
+                                window.URL.revokeObjectURL(url);
+                              } catch (error) {
+                                console.error('Error downloading file:', error);
+                                // في حالة الفشل، استخدم الطريقة البديلة
+                                window.open(fileData.url, '_blank');
+                              }
+                            };
+                            
+                            downloadFile();
                           }}
                           className="flex items-center gap-3 p-4 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg hover:from-blue-500/30 hover:to-cyan-500/30 transition-all max-w-xs group cursor-pointer"
                         >
@@ -475,18 +483,12 @@ const Message = memo((msgData: MessageModel & msgDataProps) => {
                               {fileData.name}
                             </p>
                             <p className="text-xs text-gray-400">
-                              {formatFileSize(fileData.size)} • انقر {
-                                fileData.name?.split('.').pop()?.toLowerCase() === 'pdf' 
-                                  ? 'للفتح' 
-                                  : 'للتحميل'
-                              }
+                              {formatFileSize(fileData.size)} • انقر للتحميل
                             </p>
                           </div>
 
                           <div className="opacity-60 group-hover:opacity-100 transition-all">
-                            <span className="text-lightBlue text-lg">
-                              {fileData.name?.split('.').pop()?.toLowerCase() === 'pdf' ? '📄' : '⬇'}
-                            </span>
+                            <span className="text-lightBlue text-lg">⬇</span>
                           </div>
                         </div>
                       );
