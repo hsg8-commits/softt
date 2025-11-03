@@ -55,6 +55,7 @@ const ChatCard = ({
   } = useUserStore((state) => state) || {};
   const { rooms } = useSockets((state) => state);
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const isUser = (data: any): data is User => {
     return data && typeof data === "object" && "_id" in data;
   };
@@ -99,7 +100,7 @@ const ChatCard = ({
   const latestMessageTime =
     formatDate(lastMsgData?.createdAt) || formatDate(createdAt);
   const cardMessage =
-    lastMsgData?.message || (lastMsgData?.voiceData ? "Voice message" : "");
+    lastMsgData?.message || (lastMsgData?.voiceData ? "رسالة صوتية" : "");
 
   const joinToRoom = () => {
     setter({ rightBarRoute: "/" });
@@ -241,6 +242,7 @@ const ChatCard = ({
             </span>
           </div>
           <div className="flex gap-1 items-center absolute right-3">
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
             {(lastMsgData?.sender as any) === myID ||
             lastMsgData?.sender._id === myID ? (
               <>
@@ -260,7 +262,7 @@ const ChatCard = ({
           <div className="line-clamp-1 ">
             {draftMessage ? (
               <span className="text-red-400 flex gap-1 ">
-                Draft:
+                مسودة:
                 <div className=" text-darkGray truncate">{draftMessage}</div>
               </span>
             ) : (

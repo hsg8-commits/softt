@@ -131,20 +131,21 @@ const SearchResultCard = (
         >
           <FiBookmark />
         </div>
-      ) : avatar ? (
+      ) : avatar && typeof avatar === 'string' && avatar.trim() ? (
         <Image
           src={avatar}
           className="cursor-pointer object-cover size-11 rounded-full shrink-0"
           width={50}
           height={50}
-          alt="avatar"
+          alt=""
+          unoptimized={avatar.includes('cloudinary')}
         />
       ) : (
         <ProfileGradients
           classNames="size-11 text-center text-lg"
           id={userID ?? ""}
         >
-          {name ? name[0] : ""}
+          {name && name[0] ? name[0].toUpperCase() : "؟"}
         </ProfileGradients>
       )}
       <div className="flex flex-col justify-between w-full py-2">
@@ -160,13 +161,13 @@ const SearchResultCard = (
           {findBy == "messages" && roomData.messages?.length ? (
             highlightChars(query, roomData.messages[0].message, "")
           ) : type === "group" ? (
-            `${participants?.length} members`
+            `${participants?.length} عضو`
           ) : type === "channel" ? (
-            `${participants?.length} subscribers`
+            `${participants?.length} مشترك`
           ) : isUserOnline ? (
-            <span className="text-lightBlue">online</span>
+            <span className="text-lightBlue">متصل</span>
           ) : (
-            "last seen recently"
+            "آخر ظهور مؤخراً"
           )}
         </p>
       </div>
