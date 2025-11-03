@@ -13,6 +13,7 @@ import { LuUsers } from "react-icons/lu";
 import { RiUser3Line } from "react-icons/ri";
 import { HiOutlineSpeakerphone } from "react-icons/hi";
 import { MdOutlineLockClock } from "react-icons/md";
+import { useState } from "react";
 
 interface Props {
   updateRoute: (route: string) => void;
@@ -26,6 +27,7 @@ const Main = ({ closeMenu, updateRoute, isOpen }: Props) => {
   );
   const socket = useSockets((state) => state.rooms);
   const { setter } = useGlobalStore((state) => state);
+  const [imageLoadError, setImageLoadError] = useState(false);
 
   const copyInviteLink = async () => {
     await copyText("قريباً");
@@ -76,7 +78,7 @@ const Main = ({ closeMenu, updateRoute, isOpen }: Props) => {
       } max-h-screen h-full overflow-auto duration-300 transition-all inset-y-0 z-9999 bg-leftBarBg text-white w-[80%] max-w-80 md:max-w-72 lg:max-w-80`}
     >
       <div className="flex flex-col pt-4 px-4 gap-4 bg-chatBg chatBackground pb-2">
-        {avatar ? (
+        {avatar && !imageLoadError ? (
           <Image
             className={`size-15 bg-center object-cover rounded-full cursor-pointer`}
             width={60}
@@ -84,7 +86,10 @@ const Main = ({ closeMenu, updateRoute, isOpen }: Props) => {
             height={60}
             quality={100}
             src={avatar}
-            alt="avatar"
+            alt=""
+            unoptimized={avatar.includes('cloudinary')}
+            onError={() => setImageLoadError(true)}
+            onLoad={() => setImageLoadError(false)}
           />
         ) : (
           <div
